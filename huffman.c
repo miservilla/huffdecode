@@ -2,7 +2,9 @@
  * Michael Servilla, huffman.c is code to take in a file stream, analyze it by
  * developing a character frequency list, creating a priority queue based on
  * this frequency, building a binary tree based on huffman algorithm, and then
- * using the prefix codes to encode(compress) the file.
+ * using the prefix codes to encode(compress) the file. Memory leak and seg
+ * with decoding evil.jpg.huff are ongoing issues that I would attempt to
+ * given enough time.
  ******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -306,8 +308,6 @@ void encode(int c, FILE* out)
   binCode = (char*) malloc(sizeof(char) * binCodeLength[c]);
   binCode = lookUpTable[c];
   bitWise(binCode, binCodeLength[c], out);
-  free(lookUpTable[c]);
-  /*TODO free lookUpTable here!*/
 }
 
 /*******************************************************************************
@@ -390,7 +390,7 @@ struct HuffData* walkTree(struct HuffData *head, unsigned char byte, FILE *out)
   if(walkingNode->left == NULL && walkingNode->right == NULL)
   {
     counter++;
-    if(counter < charCount)
+    if(counter < charCount + 1)
     {
       fputc(walkingNode->symbol, out);
     }
@@ -483,7 +483,6 @@ void encodeFile(FILE *in, FILE *out)
   freeTree(head);
   free(code);
   free(binCode);
-  /*Very ugly code dump when trying to free lookUpTable.*/
 }
 
 /*******************************************************************************
