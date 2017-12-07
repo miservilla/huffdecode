@@ -356,6 +356,10 @@ void printHeader(FILE *out)
   fwrite(&charCount, 8, 1, out);
 }
 
+/*******************************************************************************
+ * readHeader takes in a HuffData struct and FILE, this calls insertSorted to
+ * build a priority queue. It returns a HuffData struct.
+ ******************************************************************************/
 struct HuffData* readHeader(struct HuffData* head, FILE* in)
 {
   int j;
@@ -371,6 +375,12 @@ struct HuffData* readHeader(struct HuffData* head, FILE* in)
   return head;
 }
 
+/*******************************************************************************
+ * walkTree takes 3 arguments including a HuffData struct, unsigned char, and
+ * FILE. It recursively traverses the Huffman tree based on the obtained prefix
+ * byte code and when reaches the appropriate leaf, sends the character to file.
+ * It returns a HuffData struct.
+ ******************************************************************************/
 struct HuffData* walkTree(struct HuffData *head, unsigned char byte, FILE *out)
 {
   unsigned char bit;
@@ -473,6 +483,10 @@ void encodeFile(FILE *in, FILE *out)
   /*Very ugly code dump when trying to free lookUpTable.*/
 }
 
+/*******************************************************************************
+ * decodeFile is the pseudo main function that takes one input and one output
+ * FILE, and drives the remainder of the code. It returns void.
+ ******************************************************************************/
 void decodeFile(FILE *in, FILE *out)
 {
   flag = 1;/*Global variable.*/
