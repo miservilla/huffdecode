@@ -15,7 +15,6 @@ struct HuffData/*Struct to build both list and tree nodes.*/
   struct HuffData *next;/*The next pointer when list is used.*/
   struct HuffData *left;/*The left pointer when tree is used.*/
   struct HuffData *right;/*The right pointer when tree is used.*/
-
 };
 
 /*Begin global variables.*/
@@ -27,10 +26,10 @@ int binCodeLength[256];
 int counter;
 unsigned char returnChar;
 unsigned char totalSymbol = 0;
-int flag;
 int count;
 struct HuffData *originalHead;
 struct HuffData *walkingNode;
+int byte;
 
 /*Begin function prototypes.*/
 void getCodeRecursion(struct HuffData*, char [], int, int);
@@ -247,7 +246,7 @@ void buildCode(int symbol, char code[], int edgeCount)
 
 /*******************************************************************************
  * printStdOut takes no arguments and returns void. It loops through an array
- * prints out data including the charact symbol, frequency of occurences, and
+ * prints out data including the character symbol, frequency of occurrences, and
  * the associated prefix code.
  ******************************************************************************/
 void printStdOut()
@@ -307,6 +306,7 @@ void encode(int c, FILE* out)
   binCode = (char*) malloc(sizeof(char) * binCodeLength[c]);
   binCode = lookUpTable[c];
   bitWise(binCode, binCodeLength[c], out);
+  free(lookUpTable[c]);
   /*TODO free lookUpTable here!*/
 }
 
@@ -389,7 +389,11 @@ struct HuffData* walkTree(struct HuffData *head, unsigned char byte, FILE *out)
 
   if(walkingNode->left == NULL && walkingNode->right == NULL)
   {
-    fputc(walkingNode->symbol, out);
+    counter++;
+    if(counter < charCount)
+    {
+      fputc(walkingNode->symbol, out);
+    }
     head = originalHead;
     walkTree(head, byte, out);
   }
@@ -404,16 +408,15 @@ struct HuffData* walkTree(struct HuffData *head, unsigned char byte, FILE *out)
   {
     walkingNode = walkingNode->right;
     byte = byte << 1;
-    flag = 0;
     walkTree(walkingNode, byte, out);
   }
   else
   {
     walkingNode = walkingNode->left;
     byte = byte << 1;
-    flag = 0;
     walkTree(walkingNode, byte, out);
   }
+  return walkingNode;
 }
 
 /*******************************************************************************
@@ -489,10 +492,10 @@ void encodeFile(FILE *in, FILE *out)
  ******************************************************************************/
 void decodeFile(FILE *in, FILE *out)
 {
-  flag = 1;/*Global variable.*/
-  count = 0;/*Global variable.*/
-  int byte;
-  struct HuffData *head = NULL;
+  struct HuffData *head;
+  count = 0;
+  counter = 0;
+  head = NULL;
 
   head = readHeader(head, in);
   head = makeTree(head);
